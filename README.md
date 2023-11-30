@@ -46,6 +46,8 @@ source wrt_venv/bin/activate
 sudo apt-get install portaudio19-dev
 ```
 
+On Windows, you will need to install [FFmpeg](https://github.com/BtbN/FFmpeg-Builds/releases) and add it to your PATH.
+
 ### Install the package:
 
 ```sh

@@ -2,7 +2,6 @@ import argparse
 import os
 from datetime import datetime, timedelta
 from queue import Queue
-from sys import platform
 from time import sleep
 from typing import Any
 
@@ -16,11 +15,9 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("-m", "--model", default="medium", help="Model to use", choices=["tiny", "base", "small", "medium", "large"])
     parser.add_argument("-l", "--language", default="en", help="Language to use")
-    parser.add_argument("-e", "--energy_threshold", default=1000, help="Energy level for mic to detect.", type=int)
+    parser.add_argument("-e", "--energy_threshold", default=None, help="Energy level for mic to detect.", type=int)
     parser.add_argument("-rt", "--record_timeout", default=2, help="How real time the recording is in seconds.", type=float)
     parser.add_argument("-pt", "--phrase_timeout", default=3, help="How much empty space between recordings before we consider it a new line in the transcription.", type=float)
-    if 'linux' in platform:
-        parser.add_argument("--default_microphone", default='pulse', help="Default microphone name for SpeechRecognition. Run this with 'list' to view available Microphones.", type=str)
     args = parser.parse_args()
 
     # The last time a recording was retrieved from the queue.
@@ -37,24 +34,33 @@ def main() -> None:
     # Prevents permanent application hang and crash by using the wrong Microphone
     source = None
 
-    if 'linux' in platform:
-        mic_name = args.default_microphone
-        if not mic_name or mic_name == 'list':
-            print("Available microphone devices are: ")
-            for index, name in enumerate(sr.Microphone.list_microphone_names()):
-                print(f"Microphone with name \"{name}\" found")
-            return
-        else:
-            for index, name in enumerate(sr.Microphone.list_microphone_names()):
-                if mic_name in name:
-                    source = sr.Microphone(sample_rate=16000, device_index=index)
-                    break
+    print("Available microphone devices are: ")
+    for id, name in sr.Microphone.list_working_microphones().items():
+        print(f"{id:<2}: {name}")
+    print()
+
+    # Get the id of the microphone we want to use.
+    mic_id = input("Enter the id of the microphone you want to use: ")
+
+    mic_name = sr.Microphone.list_microphone_names()[int(mic_id)]
+
+    if not mic_name or mic_name == 'list':
+        print("Available microphone devices are: ")
+        for index, name in enumerate(sr.Microphone.list_microphone_names()):
+            print(f"Microphone with name \"{name}\" found")
+        return
     else:
-        source = sr.Microphone(sample_rate=16000)
+        for index, name in enumerate(sr.Microphone.list_microphone_names()):
+            if mic_name in name:
+                source = sr.Microphone(sample_rate=16000, device_index=index)
+                break
 
     if source is None:
         print("No microphone found, exiting.")
         return
+
+    # Print the microphone we're using.
+    print(f"Using microphone \"{mic_name}\"")
 
     # Load / Download model
     model = args.model
@@ -106,11 +112,18 @@ def main() -> None:
                 # Convert in-ram buffer to something the model can use directly without needing a temp file.
                 # Convert data from 16 bit wide integers to floating point with a width of 32 bits.
                 # Clamp the audio stream frequency to a PCM wavelength compatible default of 32768hz max.
-                audio_np = np.frombuffer(audio_data, dtype=np.int16).astype(np.float32) / 32768.0
+                try:
+                    # Convert in-ram buffer to something the model can use directly without needing a temp file.
+                    audio_np = np.frombuffer(audio_data, dtype=np.int16).astype(np.float32) / 32768.0
 
-                # Read the transcription.
-                result = audio_model.transcribe(audio_np, fp16=torch.cuda.is_available())
-                text = result['text'].strip()
+                    # Read the transcription.
+                    result = audio_model.transcribe(audio_np, fp16=torch.cuda.is_available())
+                    text = result['text'].strip()
+                    print("Transcription result:", text)  # Log transcription result
+
+                    # Rest of your code...
+                except Exception as e:
+                    print("Error during transcription:", e)  # Log any errors
 
                 # If we detected a pause between recordings, add a new item to our transcription.
                 # Otherwise edit the existing one.
