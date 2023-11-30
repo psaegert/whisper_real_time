@@ -1,34 +1,74 @@
-# Real Time Whisper Transcription
+<h1 align="center" style="margin-top: 0px;">Real Time Whisper Transcription</h1>
 
 ![Demo gif](demo.gif)
 
-This is a demo of real time speech to text with OpenAI's Whisper model. It works by constantly recording audio in a thread and concatenating the raw bytes over multiple recordings.
+This is a demo of real time speech to text with OpenAI's [Whisper](https://github.com/openai/whisper) model. It works by constantly recording audio in a thread and concatenating the raw bytes over multiple recordings.
 
-To install dependencies simply run
-```
-pip install -r requirements.txt
-```
-in an environment of your choosing.
 
-Whisper also requires the command-line tool [`ffmpeg`](https://ffmpeg.org/) to be installed on your system, which is available from most package managers:
+# Requirements
 
-```
-# on Ubuntu or Debian
-sudo apt update && sudo apt install ffmpeg
+## Software
+- Python >=3.10
+- `pip` >= [21.3](https://pip.pypa.io/en/stable/news/#v21-3)
+- `portaudio19-dev`
+- [`ffmpeg`](https://ffmpeg.org/)
 
-# on Arch Linux
-sudo pacman -S ffmpeg
 
-# on MacOS using Homebrew (https://brew.sh/)
-brew install ffmpeg
+# Getting Started
+## 1. Clone the repository
 
-# on Windows using Chocolatey (https://chocolatey.org/)
-choco install ffmpeg
-
-# on Windows using Scoop (https://scoop.sh/)
-scoop install ffmpeg
+```sh
+git clone https://github.com/psaegert/whisper_real_time
+cd whisper_real_time
 ```
 
-For more information on Whisper please see https://github.com/openai/whisper
+## 2. Install the package
 
-The code in this repository is public domain.
+### Optional: Create a virtual environment:
+
+**conda:**
+
+```sh
+conda create -n wrt python=3.11
+conda activate wrt
+```
+
+**venv:**
+
+```bash
+python3 -m venv wrt_venv
+source wrt_venv/bin/activate
+```
+
+### Install the dependencies:
+
+```sh
+sudo apt-get install portaudio19-dev
+```
+
+### Install the package:
+
+```sh
+pip install -e .
+```
+
+## 3. Run the transcription
+
+To start the chat interface, run
+
+```sh
+wrt [-h] [-m {tiny,base,small,medium,large}] [-l LANGUAGE] [-e ENERGY_THRESHOLD] [-rt RECORD_TIMEOUT] [-pt PHRASE_TIMEOUT] [--default_microphone DEFAULT_MICROPHONE]
+```
+
+and start asking questions!
+
+
+# Development
+
+## Setup
+To set up the development environment, run
+
+```
+pip install -e .[dev]
+pre-commit install
+```

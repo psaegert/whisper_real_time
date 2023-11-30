@@ -1,0 +1,72 @@
+[project]
+name = "whisper_real_time"
+description = "Real time voice transcription with OpenAI Whisper."
+authors = [
+    {name = "Paul Saegert"}
+    ]
+readme = "README.md"
+requires-python = ">=3.10"
+version = "0.0.1"
+urls = { Github = "https://github.com/psaegert/whisper_real_time"}
+dynamic = ["dependencies"]
+
+[project.optional-dependencies]
+dev = [
+   "pre-commit",
+   "pytest",
+   "pytest-cov",
+   "mypy",
+   "flake8"
+]
+
+[project.scripts]
+wrt = "wrt.__main__:main"
+
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+
+
+[tool.setuptools]
+include-package-data = true
+
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+
+[build-system]
+requires = [
+    "setuptools>=68",
+    "wheel",
+    "platformdirs==3.10.0",
+]
+build-backend = "setuptools.build_meta"
+
+
+[tool.flake8]
+ignore = ["E501"]
+exclude = [
+    ".git",
+	"__pycache__",
+	"documentation",
+	"build",
+	"venv",
+	".venv",
+	"env",
+	".env",
+	"images",
+]
+
+
+[tool.mypy]
+no_implicit_optional = false
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+explicit_package_bases = true
+exclude = ".venv"
+ignore_missing_imports = true
+
+[tool.isort]
+multi_line_output = 2
+line_length = 500
