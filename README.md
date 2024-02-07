@@ -1,16 +1,14 @@
 <h1 align="center" style="margin-top: 0px;">Real Time Whisper Transcription</h1>
 
-![Demo gif](demo.gif)
-
-This is a demo of real time speech to text with OpenAI's [Whisper](https://github.com/openai/whisper) model. It works by constantly recording audio in a thread and concatenating the raw bytes over multiple recordings.
-
-
 # Requirements
 
 ## Software
 - Python >=3.10
 - `pip` >= [21.3](https://pip.pypa.io/en/stable/news/#v21-3)
 - `portaudio19-dev`
+- `pulseaudio`
+- `alsa-utils`
+- `alsa-base`
 - [`ffmpeg`](https://ffmpeg.org/)
 
 
@@ -43,7 +41,8 @@ source wrt_venv/bin/activate
 ### Install the dependencies:
 
 ```sh
-sudo apt-get install portaudio19-dev
+sudo apt-get update
+sudo apt-get install alsa-utils alsa-base pulseaudio portaudio19-dev
 ```
 
 ### Install the package:
@@ -54,13 +53,10 @@ pip install -e .
 
 ## 3. Run the transcription
 
-To start the chat interface, run
 
 ```sh
-wrt [-h] [-m {tiny,base,small,medium,large}] [-l LANGUAGE] [-e ENERGY_THRESHOLD] [-rt RECORD_TIMEOUT] [-pt PHRASE_TIMEOUT] [--default_microphone DEFAULT_MICROPHONE]
+wrt [-m MODEL] [-l LANGUAGE] [-e ENERGY_THRESHOLD] [-rt RECORD_TIMEOUT] [-pt PHRASE_TIMEOUT] [--default_microphone DEFAULT_MICROPHONE]
 ```
-
-and start asking questions!
 
 
 # Development
